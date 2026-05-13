@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Viết Truyện AI</string>
+
+    <!-- Trang chủ -->
+    <string name="home_title">Truyện của tôi</string>
+    <string name="home_empty">Chưa có truyện nào\nBấm + để bắt đầu viết</string>
+    <string name="home_new_novel">Truyện mới</string>
+    <string name="home_last_scene">Phân cảnh gần nhất</string>
+    <string name="home_current_mood">Không khí hiện tại</string>
+
+    <!-- Tạo truyện -->
+    <string name="create_title">Tạo truyện mới</string>
+    <string name="create_novel_name">Tên truyện</string>
+    <string name="create_novel_name_hint">Ví dụ: Lily of the Valley After Story</string>
+    <string name="create_description">Mô tả truyện</string>
+    <string name="create_description_hint">Truyện kể về điều gì?</string>
+    <string name="create_source_novel">Truyện gốc (nếu có)</string>
+    <string name="create_source_hint">Tên truyện gốc bạn muốn viết tiếp/fanfic</string>
+    <string name="create_vibe_tags">Không khí truyện</string>
+    <string name="create_button">Bắt đầu viết</string>
+
+    <!-- Viết truyện -->
+    <string name="writing_prompt_hint">Mô tả cảnh bạn tưởng tượng…</string>
+    <string name="writing_send">Viết</string>
+    <string name="writing_save_scene">Lưu phân cảnh</string>
+    <string name="writing_scene_name">Tên phân cảnh</string>
+    <string name="writing_chapter">Chương</string>
+    <string name="writing_ai_writing">AI đang viết…</string>
+    <string name="writing_roleplay_mode">Chế độ nhập vai</string>
+    <string name="writing_normal_mode">Viết phân cảnh</string>
+    <string name="writing_roleplay_hint">Nhập hành động/suy nghĩ của nhân vật…</string>
+
+    <!-- Prompt Builder -->
+    <string name="prompt_title">Tạo phân cảnh mới</string>
+    <string name="prompt_mood">Tâm trạng cảnh</string>
+    <string name="prompt_speed">Tốc độ cảnh</string>
+    <string name="prompt_dialogue">Mức thoại</string>
+    <string name="prompt_viewpoint">Góc nhìn</string>
+    <string name="prompt_focus">Trọng tâm</string>
+    <string name="prompt_characters">Nhân vật trong cảnh</string>
+    <string name="prompt_idea_hint">Ý tưởng của bạn…</string>
+    <string name="prompt_write_scene">Viết phân cảnh</string>
+
+    <!-- Mood options -->
+    <string name="mood_sad">Buồn nhẹ</string>
+    <string name="mood_lonely">Cô đơn</string>
+    <string name="mood_warm">Ấm áp</string>
+    <string name="mood_heartbreak">Đau lòng</string>
+    <string name="mood_tense">Căng thẳng</string>
+    <string name="mood_romantic">Lãng mạn</string>
+    <string name="mood_melancholy">Buồn man mác</string>
+    <string name="mood_happy">Vui vẻ</string>
+    <string name="mood_healing">Chữa lành</string>
+    <string name="mood_awkward">Ngượng ngùng</string>
+    <string name="mood_slowburn">Tình cảm chậm</string>
+
+    <!-- Speed options -->
+    <string name="speed_slow">Chậm</string>
+    <string name="speed_medium">Vừa</string>
+    <string name="speed_fast">Nhanh</string>
+
+    <!-- Dialogue options -->
+    <string name="dialogue_less">Ít thoại</string>
+    <string name="dialogue_normal">Bình thường</string>
+    <string name="dialogue_more">Nhiều thoại</string>
+
+    <!-- Viewpoint options -->
+    <string name="viewpoint_main_char">Nhân vật chính</string>
+    <string name="viewpoint_other">Nhân vật khác</string>
+    <string name="viewpoint_panorama">Toàn cảnh</string>
+
+    <!-- Focus options -->
+    <string name="focus_internal">Nội tâm</string>
+    <string name="focus_chemistry">Tương tác tình cảm</string>
+    <string name="focus_action">Hành động</string>
+    <string name="focus_emotion">Cảm xúc</string>
+    <string name="focus_plot_twist">Bất ngờ cốt truyện</string>
+
+    <!-- Chỉnh nhanh AI -->
+    <string name="refine_sadder">Buồn hơn</string>
+    <string name="refine_warmer">Ấm áp hơn</string>
+    <string name="refine_character">Đúng tính cách hơn</string>
+    <string name="refine_internal">Thêm nội tâm</string>
+    <string name="refine_silence">Thêm khoảng lặng</string>
+    <string name="refine_less_dialogue">Ít thoại hơn</string>
+    <string name="refine_longer">Viết dài hơn</string>
+    <string name="refine_slower">Viết chậm hơn</string>
+
+    <!-- Sửa nhân vật -->
+    <string name="correction_wrong_speech">%s không nói kiểu này</string>
+    <string name="correction_wrong_reaction">%s sẽ không phản ứng vậy</string>
+    <string name="correction_wrong_vibe">Sai vibe nhân vật</string>
+
+    <!-- Nhân vật -->
+    <string name="character_title">Nhân vật</string>
+    <string name="character_add">Thêm nhân vật</string>
+    <string name="character_name">Tên nhân vật</string>
+    <string name="character_personality">Tính cách</string>
+    <string name="character_speech_style">Cách nói chuyện</string>
+    <string name="character_fears">Nỗi sợ</string>
+    <string name="character_important">Điều quan trọng</string>
+    <string name="character_description">Mô tả</string>
+    <string name="character_corrections">Ghi chú sửa lỗi</string>
+    <string name="character_emotional_state">Trạng thái cảm xúc</string>
+
+    <!-- Quan hệ -->
+    <string name="relationship_title">Quan hệ nhân vật</string>
+
+    <!-- Ký ức -->
+    <string name="memory_title">Ký ức truyện</string>
+    <string name="memory_permanent">Ký ức vĩnh viễn</string>
+    <string name="memory_temporary">Ký ức tạm thời</string>
+    <string name="memory_arc">Ký ức theo arc</string>
+    <string name="memory_save_prompt">Lưu ký ức này?</string>
+
+    <!-- Timeline -->
+    <string name="timeline_title">Dòng thời gian</string>
+
+    <!-- Đọc novel -->
+    <string name="reader_title">Đọc truyện</string>
+    <string name="reader_bookmark">Đánh dấu</string>
+
+    <!-- Khoảnh khắc yêu thích -->
+    <string name="favorite_title">Khoảnh khắc yêu thích</string>
+    <string name="favorite_mark">❤ Đánh dấu yêu thích</string>
+    <string name="favorite_note_hint">Vì sao bạn thích đoạn này?</string>
+
+    <!-- Lịch sử phiên bản -->
+    <string name="version_history">Lịch sử chỉnh sửa</string>
+    <string name="version_restore">Khôi phục bản này</string>
+
+    <!-- Cài đặt -->
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_api_keys">Quản lý chìa khoá truy cập</string>
+    <string name="settings_model">Chọn mẫu viết</string>
+    <string name="settings_reading">Tuỳ chỉnh đọc truyện</string>
+    <string name="settings_font_size">Cỡ chữ</string>
+    <string name="settings_line_height">Khoảng cách dòng</string>
+    <string name="settings_backup">Sao lưu dữ liệu</string>
+    <string name="settings_export">Xuất dữ liệu</string>
+    <string name="settings_import">Nhập dữ liệu</string>
+    <string name="settings_auto_backup">Tự động sao lưu</string>
+    <string name="settings_about">Thông tin ứng dụng</string>
+
+    <!-- Chung -->
+    <string name="save">Lưu</string>
+    <string name="cancel">Huỷ</string>
+    <string name="delete">Xoá</string>
+    <string name="edit">Sửa</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="back">Quay lại</string>
+    <string name="error_generic">Đã xảy ra lỗi. Vui lòng thử lại.</string>
+    <string name="loading">Đang tải…</string>
+</resources>

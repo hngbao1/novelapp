@@ -1,0 +1,26 @@
+# Secrets and local machine config
+.env
+local.properties
+*.jks
+*.keystore
+
+# Gradle / Android build output
+.gradle/
+.kotlin/
+build/
+app/build/
+*.apk
+*.aab
+
+# IDE and editor state
+.idea/
+.vscode/
+*.iml
+
+# Logs and generated scratch files
+*.log
+gradle-assemble-debug*.log
+
+# OS files
+.DS_Store
+Thumbs.db
