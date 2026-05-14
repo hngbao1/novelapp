@@ -24,6 +24,7 @@ import com.novel.assistant.data.local.entity.ChapterEntity
 import com.novel.assistant.data.local.entity.CharacterEntity
 import com.novel.assistant.data.local.entity.NovelEntity
 import com.novel.assistant.data.local.entity.SceneEntity
+import com.novel.assistant.data.local.entity.SceneVersionEntity
 import com.novel.assistant.ui.components.*
 import com.novel.assistant.ui.theme.*
 
@@ -75,7 +76,17 @@ fun WritingScreen(
         StoryStatusSheet(
             novel = uiState.novel,
             characters = uiState.characters,
+            relationships = uiState.relationships,
+            onUpdateRelationshipDynamics = viewModel::updateRelationshipDynamics,
             onDismiss = { viewModel.showStatusSheet(false) }
+        )
+    }
+
+    if (uiState.showVersionHistory) {
+        VersionHistorySheet(
+            versions = uiState.sceneVersions,
+            onRestore = viewModel::restoreVersion,
+            onDismiss = { viewModel.showVersionHistory(false) }
         )
     }
 
@@ -86,8 +97,11 @@ fun WritingScreen(
                 title = {
                     Column {
                         Text(uiState.novel?.title ?: "", style = MaterialTheme.typography.titleMedium, maxLines = 1)
-                        if (uiState.isRoleplayMode) {
-                            Text("Nhập vai: ${uiState.roleplayCharacterName}", style = MaterialTheme.typography.labelSmall, color = PinkSoft)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text("Đang dùng: ${uiState.providerName}", style = MaterialTheme.typography.labelSmall, color = TextHint)
+                            if (uiState.isRoleplayMode) {
+                                Text("• Nhập vai: ${uiState.roleplayCharacterName}", style = MaterialTheme.typography.labelSmall, color = PinkSoft)
+                            }
                         }
                     }
                 },
@@ -129,6 +143,19 @@ fun WritingScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(scrollState)) {
+            AnimatedVisibility(visible = uiState.isAnalyzingScene) {
+                Surface(color = PurplePrimary.copy(alpha = 0.1f), modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = PurplePrimary, strokeWidth = 2.dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("AI đang phân tích và lưu ký ức ngầm...", style = MaterialTheme.typography.labelSmall, color = PurpleLight)
+                    }
+                }
+            }
             if (uiState.generatedContent.isNotBlank()) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)) {
                     NovelContentText(content = uiState.generatedContent, modifier = Modifier.fillMaxWidth())
@@ -140,8 +167,11 @@ fun WritingScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary), modifier = Modifier.weight(1f)) {
                                 Icon(Icons.Default.Save, null, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Lưu phân cảnh")
                             }
-                            OutlinedButton(onClick = { viewModel.toggleCurrentFavorite() }, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, DarkDivider)) {
-                                Icon(Icons.Default.FavoriteBorder, "Yêu thích", tint = GoldWarm, modifier = Modifier.size(18.dp))
+                            OutlinedButton(onClick = { viewModel.showVersionHistory(true) }, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, DarkDivider), modifier = Modifier.size(width = 56.dp, height = 48.dp), contentPadding = PaddingValues(0.dp)) {
+                                Icon(Icons.Default.History, "Lịch sử", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            }
+                            OutlinedButton(onClick = { viewModel.toggleCurrentFavorite() }, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, DarkDivider), modifier = Modifier.size(width = 56.dp, height = 48.dp), contentPadding = PaddingValues(0.dp)) {
+                                Icon(Icons.Default.FavoriteBorder, "Yêu thích", tint = GoldWarm, modifier = Modifier.size(20.dp))
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
@@ -277,6 +307,8 @@ private fun ChapterSceneSheet(
 private fun StoryStatusSheet(
     novel: NovelEntity?,
     characters: List<CharacterEntity>,
+    relationships: List<RelationshipEntity>,
+    onUpdateRelationshipDynamics: (Long, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     ModalBottomSheet(
@@ -313,6 +345,133 @@ private fun StoryStatusSheet(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = TextSecondary
                             )
+                        }
+                    }
+                }
+            }
+
+            if (relationships.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Quan hệ & Dynamics", style = MaterialTheme.typography.titleSmall, color = TextSecondary)
+                val characterMap = characters.associateBy { it.id }
+                
+                relationships.forEach { rel ->
+                    val char1 = characterMap[rel.char1Id]?.name ?: "?"
+                    val char2 = characterMap[rel.char2Id]?.name ?: "?"
+                    var dynamicsText by remember(rel.id, rel.dynamics) { mutableStateOf(rel.dynamics) }
+                    
+                    Surface(color = DarkCard, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("$char1 ↔ $char2", style = MaterialTheme.typography.titleSmall, color = PurpleLight)
+                            if (rel.status.isNotBlank()) {
+                                Text("Status: ${rel.status}", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                            }
+                            
+                            OutlinedTextField(
+                                value = dynamicsText,
+                                onValueChange = { dynamicsText = it; onUpdateRelationshipDynamics(rel.id, it) },
+                                label = { Text("Dynamics / Chemistry") },
+                                placeholder = { Text("Ví dụ: Căng thẳng ngầm, thả thính...") },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = PurplePrimary, unfocusedBorderColor = DarkDivider,
+                                    cursorColor = PurplePrimary, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary,
+                                    focusedLabelColor = PurplePrimary, unfocusedLabelColor = TextHint
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                                minLines = 2
+                            )
+                            
+                            // Gợi ý nhanh
+                            @OptIn(ExperimentalLayoutApi::class)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                val suggestions = listOf("slow burn", "tension", "awkward", "healing", "unspoken feelings", "rivals", "protective", "clingy", "avoidant")
+                                suggestions.forEach { tag ->
+                                    val isSelected = dynamicsText.contains(tag, ignoreCase = true)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            val newText = if (isSelected) {
+                                                dynamicsText.replace(Regex("(?i)$tag,?\\s*"), "").trim().removeSuffix(",")
+                                            } else {
+                                                if (dynamicsText.isBlank()) tag else "$dynamicsText, $tag"
+                                            }
+                                            dynamicsText = newText
+                                            onUpdateRelationshipDynamics(rel.id, newText)
+                                        },
+                                        label = { Text(tag, style = MaterialTheme.typography.labelSmall) },
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = PurplePrimary.copy(alpha = 0.2f),
+                                            selectedLabelColor = PurpleLight,
+                                            containerColor = DarkBackground,
+                                            labelColor = TextSecondary
+                                        ),
+                                        border = FilterChipDefaults.filterChipBorder(
+                                            borderColor = DarkDivider,
+                                            selectedBorderColor = PurplePrimary,
+                                            enabled = true,
+                                            selected = isSelected
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun VersionHistorySheet(
+    versions: List<SceneVersionEntity>,
+    onRestore: (SceneVersionEntity) -> Unit,
+    onDismiss: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = DarkSurfaceVariant,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = TextHint) }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text("Lịch sử phiên bản", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
+            if (versions.isEmpty()) {
+                Text("Chưa có phiên bản nào trước đó", style = MaterialTheme.typography.bodyMedium, color = TextHint)
+            } else {
+                androidx.compose.foundation.lazy.LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(versions.sortedByDescending { it.createdAt }) { version ->
+                        Surface(color = DarkCard, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                    val time = java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault()).format(java.util.Date(version.createdAt))
+                                    Text("Phiên bản ${version.versionNumber}", style = MaterialTheme.typography.titleSmall, color = PurplePrimary)
+                                    Text(time, style = MaterialTheme.typography.labelSmall, color = TextHint)
+                                }
+                                Text(
+                                    text = version.content.take(80).replace("\n", " ") + "...",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary
+                                )
+                                Button(
+                                    onClick = { onRestore(version) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = DarkSurface),
+                                    modifier = Modifier.align(Alignment.End),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Khôi phục", color = PurplePrimary, style = MaterialTheme.typography.labelMedium)
+                                }
+                            }
                         }
                     }
                 }

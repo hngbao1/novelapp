@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.novel.assistant.data.remote.ai.StyleAnalyzer
 
 data class CreationUiState(
     val title: String = "",
@@ -28,7 +29,8 @@ data class CreationUiState(
 @HiltViewModel
 class CreationViewModel @Inject constructor(
     private val novelDao: NovelDao,
-    private val chapterDao: ChapterDao
+    private val chapterDao: ChapterDao,
+    private val styleAnalyzer: StyleAnalyzer
 ) : ViewModel() {
 
     private val gson = Gson()
@@ -87,6 +89,16 @@ class CreationViewModel @Inject constructor(
                 chapterDao.insertChapter(
                     ChapterEntity(novelId = novelId, title = "Chương 1", orderIndex = 0)
                 )
+                
+                // Analyze style if source description is provided
+                if (state.sourceNovelDescription.isNotBlank()) {
+                    try {
+                        styleAnalyzer.analyzeOriginalNovel(novelId, state.sourceNovelDescription, state.sourceNovelName)
+                    } catch (e: Exception) {
+                        // ignore or log, don't fail novel creation
+                    }
+                }
+                
                 _uiState.value = _uiState.value.copy(savedNovelId = novelId, isSaving = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(

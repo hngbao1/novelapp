@@ -3,6 +3,8 @@ package com.novel.assistant.data.local.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.novel.assistant.data.local.dao.*
 import com.novel.assistant.data.local.entity.*
 
@@ -19,11 +21,21 @@ import com.novel.assistant.data.local.entity.*
         TimelineEventEntity::class,
         StyleReferenceEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
+
+    companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE scenes ADD COLUMN summary TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE relationships ADD COLUMN dynamics TEXT NOT NULL DEFAULT ''")
+            }
+        }
+    }
+
     abstract fun novelDao(): NovelDao
     abstract fun chapterDao(): ChapterDao
     abstract fun sceneDao(): SceneDao

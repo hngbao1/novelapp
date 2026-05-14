@@ -15,6 +15,10 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
+enum class ConflictResolution {
+    OVERWRITE, KEEP_BOTH, SKIP
+}
+
 data class NovelBackup(
     val novel: NovelEntity,
     val chapters: List<ChapterEntity>,
@@ -73,12 +77,37 @@ class BackupManager @Inject constructor(
         )
     }
 
-    suspend fun importFromJson(jsonString: String) = withContext(Dispatchers.IO) {
-        val fullBackup = gson.fromJson(jsonString, FullBackup::class.java)
+    suspend fun parseBackup(jsonString: String): FullBackup? = withContext(Dispatchers.IO) {
+        try { gson.fromJson(jsonString, FullBackup::class.java) } catch (e: Exception) { null }
+    }
+
+    suspend fun checkConflicts(fullBackup: FullBackup): Boolean = withContext(Dispatchers.IO) {
+        val existingNovels = database.novelDao().getAllNovelsOnce()
+        fullBackup.novels.any { backup ->
+            existingNovels.any { it.id == backup.novel.id || it.title == backup.novel.title }
+        }
+    }
+
+    suspend fun importBackup(fullBackup: FullBackup, resolution: ConflictResolution = ConflictResolution.KEEP_BOTH) = withContext(Dispatchers.IO) {
+        val existingNovels = database.novelDao().getAllNovelsOnce()
 
         fullBackup.novels.forEach { backup ->
-            // Insert novel with new ID
-            val newNovelId = database.novelDao().insertNovel(backup.novel.copy(id = 0))
+            val existing = existingNovels.find { it.id == backup.novel.id || it.title == backup.novel.title }
+            
+            if (existing != null) {
+                when (resolution) {
+                    ConflictResolution.SKIP -> return@forEach
+                    ConflictResolution.OVERWRITE -> {
+                        database.novelDao().deleteNovel(existing)
+                    }
+                    ConflictResolution.KEEP_BOTH -> {
+                        // proceed to insert as new
+                    }
+                }
+            }
+
+            // Insert novel with new ID (or original ID if we deleted the existing one, but using 0 is safer to auto-generate and avoid constraint issues if ID was not the conflict reason)
+            val newNovelId = database.novelDao().insertNovel(backup.novel.copy(id = 0, title = if (resolution == ConflictResolution.KEEP_BOTH && existing != null) "${backup.novel.title} (Bản sao)" else backup.novel.title))
 
             // Re-map chapter IDs
             val chapterIdMap = mutableMapOf<Long, Long>()

@@ -67,8 +67,25 @@ class KeyRotationManager @Inject constructor() {
         return bestKey
     }
 
+    /**
+     * Cross-pool fallback: MEMORY ↔ GENERATOR mượn key lẫn nhau,
+     * sau đó mới fallback về MAIN.
+     */
     suspend fun getNextKeyWithFallback(primaryGroup: KeyGroup, fallbackGroup: KeyGroup = KeyGroup.MAIN): String? {
-        return getNextKey(primaryGroup) ?: getNextKey(fallbackGroup)
+        getNextKey(primaryGroup)?.let { return it }
+
+        // Cross-pool: MEMORY <-> GENERATOR
+        val crossPool = when (primaryGroup) {
+            KeyGroup.MEMORY -> KeyGroup.GENERATOR
+            KeyGroup.GENERATOR -> KeyGroup.MEMORY
+            else -> null
+        }
+        if (crossPool != null) {
+            getNextKey(crossPool)?.let { return it }
+        }
+
+        // Final fallback to MAIN
+        return getNextKey(fallbackGroup)
     }
 
     suspend fun markKeyFailed(key: String, errorCode: Int?) = mutex.withLock {

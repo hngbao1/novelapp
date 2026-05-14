@@ -65,6 +65,7 @@ data class SceneEntity(
     val promptSettings: String = "{}", // JSON
     val mood: String = "",
     val vibeTags: String = "[]", // JSON list
+    val summary: String = "", // Smart summary
     val orderIndex: Int = 0,
     val isFavorite: Boolean = false,
     val favoriteNotes: String = "",
@@ -161,6 +162,7 @@ data class RelationshipEntity(
     val char1Id: Long,
     val char2Id: Long,
     val description: String = "",
+    val dynamics: String = "", // Chemistry, tension, who's proactive etc.
     val status: String = "",
     val intimacyLevel: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),

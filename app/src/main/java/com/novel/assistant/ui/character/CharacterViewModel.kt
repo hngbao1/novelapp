@@ -18,7 +18,13 @@ data class CharacterUiState(
     val editingCharacter: CharacterEntity? = null,
     val name: String = "", val description: String = "", val personality: String = "",
     val speechStyle: String = "", val fears: String = "", val importantThings: String = "",
-    val isMainCharacter: Boolean = false, val emotionalState: String = ""
+    val isMainCharacter: Boolean = false, val emotionalState: String = "",
+    val showCorrectionsSheet: Boolean = false,
+    val selectedCharacterId: Long? = null,
+    val corrections: List<CharacterCorrectionEntity> = emptyList(),
+    val correctionType: String = "Giọng điệu",
+    val correctionWrong: String = "",
+    val correctionRight: String = ""
 )
 
 @HiltViewModel
@@ -30,6 +36,7 @@ class CharacterViewModel @Inject constructor(
     private val novelId: Long = savedStateHandle.get<Long>("novelId") ?: 0L
     private val _uiState = MutableStateFlow(CharacterUiState())
     val uiState: StateFlow<CharacterUiState> = _uiState.asStateFlow()
+    private var correctionsJob: kotlinx.coroutines.Job? = null
 
     init { viewModelScope.launch { characterDao.getCharactersByNovel(novelId).collect { _uiState.value = _uiState.value.copy(characters = it) } } }
 
@@ -60,7 +67,35 @@ class CharacterViewModel @Inject constructor(
 
     fun deleteCharacter(char: CharacterEntity) { viewModelScope.launch { characterDao.deleteCharacter(char) } }
 
-    fun addCorrection(charId: Long, type: String, wrong: String, right: String) {
-        viewModelScope.launch { correctionDao.insertCorrection(CharacterCorrectionEntity(characterId = charId, novelId = novelId, correctionType = type, wrongExample = wrong, rightDescription = right)) }
+    fun showCorrections(charId: Long?) {
+        _uiState.value = _uiState.value.copy(showCorrectionsSheet = charId != null, selectedCharacterId = charId, correctionWrong = "", correctionRight = "")
+        correctionsJob?.cancel()
+        if (charId != null) {
+            correctionsJob = viewModelScope.launch {
+                correctionDao.getCorrectionsByCharacter(charId).collect {
+                    _uiState.value = _uiState.value.copy(corrections = it)
+                }
+            }
+        } else {
+            _uiState.value = _uiState.value.copy(corrections = emptyList())
+        }
+    }
+
+    fun updateCorrectionType(type: String) { _uiState.value = _uiState.value.copy(correctionType = type) }
+    fun updateCorrectionWrong(wrong: String) { _uiState.value = _uiState.value.copy(correctionWrong = wrong) }
+    fun updateCorrectionRight(right: String) { _uiState.value = _uiState.value.copy(correctionRight = right) }
+
+    fun saveCorrection() {
+        val s = _uiState.value
+        val charId = s.selectedCharacterId ?: return
+        if (s.correctionWrong.isBlank() || s.correctionRight.isBlank()) return
+        viewModelScope.launch {
+            correctionDao.insertCorrection(CharacterCorrectionEntity(characterId = charId, novelId = novelId, correctionType = s.correctionType, wrongExample = s.correctionWrong, rightDescription = s.correctionRight))
+            _uiState.value = _uiState.value.copy(correctionWrong = "", correctionRight = "")
+        }
+    }
+
+    fun deleteCorrection(correction: CharacterCorrectionEntity) {
+        viewModelScope.launch { correctionDao.deleteCorrection(correction) }
     }
 }

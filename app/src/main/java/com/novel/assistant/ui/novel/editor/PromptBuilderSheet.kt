@@ -96,6 +96,62 @@ fun PromptBuilderSheet(
                 }
             }
 
+            // Scene Goal
+            SectionLabel("Mục tiêu phân cảnh")
+            val goals = listOf("Chữa lành","Tăng tension","Tạo khoảng lặng","Build chemistry",
+                "Foreshadow","Chuẩn bị confession","Reveal bí mật","Giải quyết xung đột","Phát triển nhân vật")
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                goals.forEach { goal ->
+                    VibeTagChip(tag = goal, isSelected = settings.sceneGoal == goal,
+                        onClick = { onSettingsChange(settings.copy(sceneGoal = if (settings.sceneGoal == goal) "" else goal)) })
+                }
+            }
+
+            // Location
+            SectionLabel("Địa điểm")
+            var locationInput by remember(settings.location) { mutableStateOf(settings.location) }
+            OutlinedTextField(
+                value = locationInput,
+                onValueChange = { locationInput = it; onSettingsChange(settings.copy(location = it)) },
+                placeholder = { Text("VD: Sân thượng, quán cà phê, bệnh viện...", color = TextHint) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PurplePrimary, unfocusedBorderColor = DarkDivider,
+                    cursorColor = PurplePrimary, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary
+                ),
+                shape = RoundedCornerShape(12.dp), singleLine = true
+            )
+
+            // Time
+            SectionLabel("Thời gian")
+            var timeInput by remember(settings.time) { mutableStateOf(settings.time) }
+            OutlinedTextField(
+                value = timeInput,
+                onValueChange = { timeInput = it; onSettingsChange(settings.copy(time = it)) },
+                placeholder = { Text("VD: Ban đêm, sáng sớm, hoàng hôn...", color = TextHint) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PurplePrimary, unfocusedBorderColor = DarkDivider,
+                    cursorColor = PurplePrimary, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary
+                ),
+                shape = RoundedCornerShape(12.dp), singleLine = true
+            )
+
+            // Unresolved Topics
+            SectionLabel("Chủ đề tồn đọng")
+            var unresolvedInput by remember(settings.unresolvedTopics) { mutableStateOf(settings.unresolvedTopics) }
+            OutlinedTextField(
+                value = unresolvedInput,
+                onValueChange = { unresolvedInput = it; onSettingsChange(settings.copy(unresolvedTopics = it)) },
+                placeholder = { Text("VD: Lời hứa chưa giữ, bí mật chưa nói...", color = TextHint) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PurplePrimary, unfocusedBorderColor = DarkDivider,
+                    cursorColor = PurplePrimary, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary
+                ),
+                shape = RoundedCornerShape(12.dp), minLines = 2, maxLines = 3
+            )
+
             // Characters in scene
             if (characters.isNotEmpty()) {
                 SectionLabel("Nhân vật trong cảnh")

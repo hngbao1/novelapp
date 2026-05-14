@@ -30,7 +30,9 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "novel_ai_database"
-        ).build()
+        )
+        .addMigrations(AppDatabase.MIGRATION_1_2)
+        .build()
     }
 
     // === DAOs ===
@@ -87,6 +89,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideAiProvider(geminiProvider: GeminiProvider): AiProvider = geminiProvider
+
+    @Provides
+    @Singleton
+    fun provideSceneGenerator(provider: AiProvider): SceneGenerator = provider
+
+    @Provides
+    @Singleton
+    fun provideMemoryAnalyzer(provider: AiProvider): MemoryAnalyzer = provider
 
     // === Backup ===
     @Provides

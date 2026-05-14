@@ -101,6 +101,9 @@ interface SceneDao {
 
     @Query("UPDATE scenes SET content = :content, updatedAt = :time WHERE id = :sceneId")
     suspend fun updateContent(sceneId: Long, content: String, time: Long = System.currentTimeMillis())
+
+    @Query("UPDATE scenes SET summary = :summary WHERE id = :sceneId")
+    suspend fun updateSummary(sceneId: Long, summary: String)
 }
 
 @Dao
@@ -179,6 +182,9 @@ interface RelationshipDao {
 
     @Delete
     suspend fun deleteRelationship(relationship: RelationshipEntity)
+
+    @Query("UPDATE relationships SET dynamics = :dynamics, updatedAt = :time WHERE id = :relId")
+    suspend fun updateDynamics(relId: Long, dynamics: String, time: Long = System.currentTimeMillis())
 }
 
 @Dao

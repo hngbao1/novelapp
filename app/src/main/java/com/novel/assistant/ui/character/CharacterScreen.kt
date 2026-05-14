@@ -29,6 +29,10 @@ fun CharacterScreen(onBack: () -> Unit, viewModel: CharacterViewModel = hiltView
         CharacterFormDialog(uiState = uiState, viewModel = viewModel, onDismiss = { viewModel.showAddDialog(false) })
     }
 
+    if (uiState.showCorrectionsSheet) {
+        CorrectionsSheet(uiState = uiState, viewModel = viewModel, onDismiss = { viewModel.showCorrections(null) })
+    }
+
     Scaffold(
         containerColor = DarkBackground,
         topBar = {
@@ -57,7 +61,10 @@ fun CharacterScreen(onBack: () -> Unit, viewModel: CharacterViewModel = hiltView
                                     }
                                     if (char.currentEmotionalState.isNotBlank()) { Text("💭 ${char.currentEmotionalState}", style = MaterialTheme.typography.labelMedium, color = TextHint, modifier = Modifier.padding(top = 4.dp)) }
                                 }
-                                IconButton(onClick = { viewModel.editCharacter(char) }) { Icon(Icons.Default.Edit, "Sửa", tint = TextHint) }
+                                Row {
+                                    IconButton(onClick = { viewModel.showCorrections(char.id) }) { Icon(Icons.Default.Tune, "Điều chỉnh", tint = TextHint) }
+                                    IconButton(onClick = { viewModel.editCharacter(char) }) { Icon(Icons.Default.Edit, "Sửa", tint = TextHint) }
+                                }
                             }
                             if (char.personality.isNotBlank()) { Spacer(Modifier.height(8.dp)); Text("Tính cách: ${char.personality}", style = MaterialTheme.typography.bodySmall, color = TextSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis) }
                             if (char.speechStyle.isNotBlank()) { Text("Cách nói: ${char.speechStyle}", style = MaterialTheme.typography.bodySmall, color = TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis) }
@@ -90,4 +97,61 @@ private fun CharacterFormDialog(uiState: CharacterUiState, viewModel: CharacterV
         },
         confirmButton = { Button(onClick = viewModel::saveCharacter, colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)) { Text("Lưu") } },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Huỷ", color = TextSecondary) } })
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CorrectionsSheet(uiState: CharacterUiState, viewModel: CharacterViewModel, onDismiss: () -> Unit) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = DarkSurfaceVariant,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = TextHint) }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text("Điều chỉnh AI (Corrections)", style = MaterialTheme.typography.headlineMedium, color = TextPrimary)
+            Text("Giúp AI viết nhân vật đúng hơn bằng cách đưa ví dụ đúng/sai.", style = MaterialTheme.typography.bodySmall, color = TextHint)
+
+            // Form
+            Surface(color = DarkCard, shape = RoundedCornerShape(12.dp)) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val tfColors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PurplePrimary, unfocusedBorderColor = DarkDivider, cursorColor = PurplePrimary, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, focusedLabelColor = PurplePrimary, unfocusedLabelColor = TextHint)
+                    OutlinedTextField(uiState.correctionType, viewModel::updateCorrectionType, label = { Text("Loại (vd: Giọng điệu, Hành xử)") }, colors = tfColors, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(uiState.correctionWrong, viewModel::updateCorrectionWrong, label = { Text("AI thường viết sai (Ví dụ)") }, colors = tfColors, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(), minLines = 2)
+                    OutlinedTextField(uiState.correctionRight, viewModel::updateCorrectionRight, label = { Text("Cách viết đúng") }, colors = tfColors, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth(), minLines = 2)
+                    Button(onClick = viewModel::saveCorrection, modifier = Modifier.align(Alignment.End), colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary)) {
+                        Text("Thêm điều chỉnh")
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // List
+            Text("Danh sách điều chỉnh:", style = MaterialTheme.typography.titleSmall, color = TextSecondary)
+            if (uiState.corrections.isEmpty()) {
+                Text("Chưa có điều chỉnh nào.", style = MaterialTheme.typography.bodyMedium, color = TextHint)
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(uiState.corrections, key = { it.id }) { correction ->
+                        Surface(color = DarkCard, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(correction.correctionType, style = MaterialTheme.typography.labelSmall, color = PurpleLight)
+                                    Spacer(Modifier.height(4.dp))
+                                    Text("❌ ${correction.wrongExample}", style = MaterialTheme.typography.bodySmall, color = RedSoft)
+                                    Text("✅ ${correction.rightDescription}", style = MaterialTheme.typography.bodySmall, color = GreenSoft)
+                                }
+                                IconButton(onClick = { viewModel.deleteCorrection(correction) }) {
+                                    Icon(Icons.Default.Delete, "Xoá", tint = RedSoft)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

@@ -19,7 +19,11 @@ data class PromptSettings(
     val dialogueLevel: String = "bình thường",
     val viewpoint: String = "nhân vật chính",
     val focus: String = "",
-    val vibeTags: List<String> = emptyList()
+    val vibeTags: List<String> = emptyList(),
+    val location: String = "",
+    val time: String = "",
+    val sceneGoal: String = "",
+    val unresolvedTopics: String = ""
 )
 
 data class MemorySuggestion(
@@ -35,11 +39,25 @@ data class CharacterStateUpdate(
 )
 
 /**
- * Interface cho AI provider — thiết kế mở để dễ thêm Claude/OpenAI sau
+ * Interface cho AI chuyên viết truyện và sinh phân cảnh.
+ * Mở đường để sử dụng Claude hoặc OpenAI.
  */
-interface AiProvider {
+interface SceneGenerator {
     suspend fun generateScene(request: SceneRequest): Flow<String>
     suspend fun refineScene(currentContent: String, instruction: String, context: String): Flow<String>
+}
+
+/**
+ * Interface cho AI chuyên xử lý logic và phân tích.
+ * Ưu tiên dùng Gemini vì xử lý context dài tốt và rẻ.
+ */
+interface MemoryAnalyzer {
     suspend fun analyzeForMemories(sceneContent: String, novelContext: String): List<MemorySuggestion>
     suspend fun summarizeScene(sceneContent: String): String
 }
+
+/**
+ * Interface gộp chung cho các Provider hỗ trợ cả hai (như GeminiProvider hiện tại)
+ */
+interface AiProvider : SceneGenerator, MemoryAnalyzer
+
