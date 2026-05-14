@@ -11,7 +11,7 @@ build/
 app/build/
 *.apk
 *.aab
-
+log.txt
 # IDE and editor state
 .idea/
 .vscode/

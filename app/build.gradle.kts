@@ -3,7 +3,6 @@ import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -135,8 +134,9 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // AI
-    implementation(libs.generativeai)
+    // Network (Gemini REST API - không dùng deprecated SDK)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 
     // DataStore
     implementation(libs.datastore.preferences)

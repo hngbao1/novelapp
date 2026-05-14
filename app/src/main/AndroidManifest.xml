@@ -10,7 +10,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NovelAI">
+        android:theme="@style/Theme.NovelAI"
+        android:enableOnBackInvokedCallback="true">
 
         <!-- Disable default WorkManager initializer (we use HiltWorkerFactory) -->
         <provider
