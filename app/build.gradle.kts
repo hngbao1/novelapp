@@ -1,4 +1,5 @@
 import java.util.Properties
+import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
     alias(libs.plugins.android.application)
@@ -42,14 +43,14 @@ fun Properties.getSortedKeys(regex: Regex, baseName: String? = null): List<Strin
 fun buildConfigStringArray(values: List<String>): String =
     values.joinToString(prefix = "{", postfix = "}") { it.asBuildConfigString() }
 
-android {
+extensions.configure<ApplicationExtension> {
     namespace = "com.novel.assistant"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.novel.assistant"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
 
@@ -77,15 +78,12 @@ android {
             envProps.getIntOrDefault("GEMINI_MAX_OUTPUT_TOKENS_MAIN", 8192).toString())
         buildConfigField("int", "GEMINI_MAX_OUTPUT_TOKENS_MEMORY",
             envProps.getIntOrDefault("GEMINI_MAX_OUTPUT_TOKENS_MEMORY", 2048).toString())
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -96,10 +94,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -158,4 +152,14 @@ dependencies {
     implementation(libs.work.runtime.ktx)
     implementation(libs.hilt.work)
     ksp(libs.hilt.work.compiler)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }

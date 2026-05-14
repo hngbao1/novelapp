@@ -25,6 +25,7 @@ import com.novel.assistant.data.local.entity.CharacterEntity
 import com.novel.assistant.data.local.entity.NovelEntity
 import com.novel.assistant.data.local.entity.SceneEntity
 import com.novel.assistant.data.local.entity.SceneVersionEntity
+import com.novel.assistant.data.local.entity.RelationshipEntity
 import com.novel.assistant.ui.components.*
 import com.novel.assistant.ui.theme.*
 
