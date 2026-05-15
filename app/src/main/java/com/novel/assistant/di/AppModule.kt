@@ -31,7 +31,7 @@ object AppModule {
             AppDatabase::class.java,
             "novel_ai_database"
         )
-        .addMigrations(AppDatabase.MIGRATION_1_2)
+        .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
         .build()
     }
 
@@ -65,11 +65,13 @@ object AppModule {
     @Singleton
     fun provideKeyRotationManager(): KeyRotationManager {
         val manager = KeyRotationManager()
-        manager.initialize(
-            mainKeys = BuildConfig.GEMINI_MAIN_KEYS,
-            memoryKeys = BuildConfig.GEMINI_MEMORY_KEYS,
-            generatorKeys = BuildConfig.GEMINI_GENERATOR_KEYS
-        )
+        kotlinx.coroutines.runBlocking {
+            manager.initialize(
+                mainKeys = BuildConfig.GEMINI_MAIN_KEYS,
+                memoryKeys = BuildConfig.GEMINI_MEMORY_KEYS,
+                generatorKeys = BuildConfig.GEMINI_GENERATOR_KEYS
+            )
+        }
         return manager
     }
 

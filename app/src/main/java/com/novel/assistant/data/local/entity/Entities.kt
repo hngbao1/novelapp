@@ -114,6 +114,12 @@ data class CharacterEntity(
     val avatarPath: String? = null,
     val currentEmotionalState: String = "",
     val isMainCharacter: Boolean = false,
+    
+    // --- Voice Lock System ---
+    val voiceRhythm: String = "",
+    val evasionLevel: Int = 0, // 0: Trực diện, 1: Né tránh nhẹ, 2: Né tránh cao
+    val initiativeLevel: Int = 0, // 0: Thụ động, 1: Bình thường, 2: Chủ động
+    
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
@@ -233,5 +239,10 @@ data class StyleReferenceEntity(
     val emotionStyle: String = "",
     val descriptionStyle: String = "",
     val sampleText: String = "",
+    
+    // --- Vibe Preservation System ---
+    val atmosphere: String = "",
+    val emotionalRhythm: String = "",
+    
     val createdAt: Long = System.currentTimeMillis()
 )

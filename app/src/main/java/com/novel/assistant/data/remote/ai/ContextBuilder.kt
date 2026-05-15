@@ -115,6 +115,23 @@ class ContextBuilder @Inject constructor(
                 if (char.currentEmotionalState.isNotBlank()) {
                     appendLine("  ⚡ CẢM XÚC HIỆN TẠI: ${char.currentEmotionalState}")
                 }
+                
+                // --- Trụ cột 2: Voice Lock ---
+                if (char.voiceRhythm.isNotBlank()) appendLine("  🗣️ NHỊP THOẠI: ${char.voiceRhythm}")
+                val evasionStr = when (char.evasionLevel) {
+                    0 -> "Trực diện, thẳng thắn"
+                    1 -> "Đôi khi nói vòng vo, né tránh chủ đề khó"
+                    2 -> "Cực kỳ lảng tránh cảm xúc, đổi chủ đề khi căng thẳng"
+                    else -> "Trực diện"
+                }
+                appendLine("  🛡️ PHẢN ỨNG TÂM LÝ: $evasionStr")
+                val initStr = when (char.initiativeLevel) {
+                    0 -> "Thụ động, chờ người khác mở lời"
+                    1 -> "Bình thường"
+                    2 -> "Chủ động, hay dẫn dắt câu chuyện"
+                    else -> "Bình thường"
+                }
+                appendLine("  🔥 MỨC CHỦ ĐỘNG: $initStr")
                 // Corrections — high priority for AI to learn character voice
                 val charCorrections = correctionMap[char.id]
                 if (!charCorrections.isNullOrEmpty()) {
@@ -165,44 +182,28 @@ class ContextBuilder @Inject constructor(
                 appendLine()
             }
 
-            // ── Block 5: Style Rules ──
+            // ── Block 5: Style Rules (Vibe & Preset) ──
             appendLine("=== PHONG CÁCH PHẢI GIỮ ===")
-            if (novelVibeTags.isNotBlank()) appendLine("Vibe truyện: $novelVibeTags")
-            appendLine("- Nhịp văn phù hợp với mood, KHÔNG vội")
-            appendLine("- Show, don't tell — thể hiện cảm xúc qua hành vi, CỬ CHỈ, ánh mắt")
-            appendLine("- Khoảng lặng quan trọng — đôi khi không nói gì mới là nói nhiều nhất")
-            appendLine("- Nội tâm tinh tế — suy nghĩ phải ngắn, tự nhiên, không triết lý")
-            appendLine("- Thoại ngắn, tự nhiên, có nhịp đời thường")
+            if (novelVibeTags.isNotBlank()) appendLine("Vibe truyện gốc: $novelVibeTags")
+            appendLine(PromptModules.getPresetRules(settings.presetName))
+            appendLine(PromptModules.getEnergyRules(settings.sceneEnergy))
+            appendLine(PromptModules.getCinematicAndIntrospectionRules(settings.cinematicLevel, settings.introspectionLevel, settings.melancholyLevel))
             appendLine("- Giữ emotional continuity với scene trước")
-            appendLine("- Tốc độ: ${settings.speed}")
-            appendLine("- Mức thoại: ${settings.dialogueLevel}")
-            appendLine("- Góc nhìn: ${settings.viewpoint}")
-            if (settings.focus.isNotBlank()) appendLine("- Trọng tâm: ${settings.focus}")
-
-            // Style references as instructions (not just samples)
+            
+            // Style references (Trụ cột 3: Vibe Preservation)
             if (styles.isNotEmpty()) {
                 appendLine()
+                appendLine("=== LONG-TERM STYLE MEMORY ===")
                 styles.forEach { style ->
-                    if (style.rhythmNotes.isNotBlank()) appendLine("Nhịp văn mẫu: ${style.rhythmNotes}")
-                    if (style.dialogueStyle.isNotBlank()) appendLine("Kiểu thoại mẫu: ${style.dialogueStyle}")
-                    if (style.emotionStyle.isNotBlank()) appendLine("Cảm xúc mẫu: ${style.emotionStyle}")
-                    if (style.descriptionStyle.isNotBlank()) appendLine("Mô tả mẫu: ${style.descriptionStyle}")
+                    if (style.atmosphere.isNotBlank()) appendLine("Bầu không khí cần giữ: ${style.atmosphere}")
+                    if (style.emotionalRhythm.isNotBlank()) appendLine("Nhịp cảm xúc cần giữ: ${style.emotionalRhythm}")
+                    if (style.rhythmNotes.isNotBlank()) appendLine("Nhịp văn: ${style.rhythmNotes}")
                 }
             }
             appendLine()
 
             // ── Block 6: Anti-AI Rules ──
-            appendLine("=== TRÁNH (QUAN TRỌNG) ===")
-            appendLine("- KHÔNG thoại triết lý sáo rỗng, giả sâu sắc")
-            appendLine("- KHÔNG giải thích cảm xúc liên tục bằng lời (\"cô cảm thấy buồn vì...\")")
-            appendLine("- KHÔNG lặp lại ý mà người đọc đã biết")
-            appendLine("- KHÔNG kết scene quá dramatic hoặc quá gọn gàng")
-            appendLine("- KHÔNG nhân vật nào luôn nói hoàn hảo, sạch sẽ, văn vẻ")
-            appendLine("- KHÔNG \"mỉm cười cay đắng\", \"nụ cười không chạm tới mắt\" — tránh cliché")
-            appendLine("- KHÔNG over monologue — nội tâm phải ngắn, thật")
-            appendLine("- KHÔNG mô tả màu mè quá mức")
-            appendLine("- KHÔNG nhắc tên nhân vật liên tục vô nghĩa")
-            appendLine("- KHÔNG reset mood giữa scene — cảm xúc phải nối liền mạch")
+            appendLine(PromptModules.getAntiAiRules())
             appendLine()
 
             // Source novel info

@@ -21,7 +21,7 @@ import com.novel.assistant.data.local.entity.*
         TimelineEventEntity::class,
         StyleReferenceEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -32,6 +32,19 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE scenes ADD COLUMN summary TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE relationships ADD COLUMN dynamics TEXT NOT NULL DEFAULT ''")
+            }
+        }
+        
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Character Voice Lock
+                db.execSQL("ALTER TABLE characters ADD COLUMN voiceRhythm TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE characters ADD COLUMN evasionLevel INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE characters ADD COLUMN initiativeLevel INTEGER NOT NULL DEFAULT 0")
+                
+                // Style Vibe Preservation
+                db.execSQL("ALTER TABLE style_references ADD COLUMN atmosphere TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE style_references ADD COLUMN emotionalRhythm TEXT NOT NULL DEFAULT ''")
             }
         }
     }

@@ -72,12 +72,8 @@ class WritingViewModel @Inject constructor(
     private val gson = Gson()
 
     init {
-        viewModelScope.launch {
-            appPreferences.modelName.collect { model ->
-                val provider = if (model.lowercase().contains("claude")) "Claude" else if (model.lowercase().contains("gpt")) "OpenAI" else "Gemini"
-                _uiState.value = _uiState.value.copy(providerName = provider)
-            }
-        }
+        // Mặc định luôn là Gemini theo kiến trúc mới
+        _uiState.value = _uiState.value.copy(providerName = "Gemini")
         loadNovelData()
     }
 

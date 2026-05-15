@@ -283,6 +283,36 @@ class GeminiProvider @Inject constructor(
     // AiProvider interface implementation
     // ─────────────────────────────────────────────────────────────────────────
 
+    private fun calculateTemperature(unpredictabilityLevel: Int): Float {
+        return when (unpredictabilityLevel) {
+            0 -> 0.4f // Đúng ý
+            1 -> 0.85f // Cân bằng
+            2 -> 1.4f // Khó đoán
+            else -> 0.85f
+        }
+    }
+
+    private fun calculateTopP(continuityLevel: Int): Float {
+        return when (continuityLevel) {
+            0 -> 0.95f // Nhẹ
+            1 -> 0.8f // Cân bằng
+            2 -> 0.5f // Chặt chẽ (Continuity cao)
+            else -> 0.8f
+        }
+    }
+
+    private fun calculateMaxTokens(presetName: String, cinematicLevel: Int): Int {
+        var baseTokens = when (presetName) {
+            "Melancholy", "Healing" -> 2048 // Ngắn gọn, tĩnh lặng
+            "Visual novel Hàn", "Drama nhẹ" -> 4096 // Vừa phải
+            "Slow burn", "Điện ảnh đời thường" -> 6144 // Dài hơn
+            else -> 4096
+        }
+        // Điện ảnh cao -> cần miêu tả nhiều -> cộng thêm token
+        if (cinematicLevel == 2) baseTokens += 2048 
+        return baseTokens.coerceAtMost(8192)
+    }
+
     override suspend fun generateScene(request: SceneRequest): Flow<String> = flow {
         val fullSystemPrompt = buildString {
             appendLine(request.systemContext)
@@ -306,10 +336,16 @@ class GeminiProvider @Inject constructor(
             "Ý tưởng scene:\n${request.userPrompt}\n\nHãy viết thành scene truyện hoàn chỉnh."
         }
 
+        val temp = calculateTemperature(request.promptSettings.unpredictabilityLevel)
+        val topP = calculateTopP(request.promptSettings.continuityLevel)
+        val tokens = calculateMaxTokens(request.promptSettings.presetName, request.promptSettings.cinematicLevel)
+
         val payload = buildPayload(
             userPrompt = userMessage,
             systemInstruction = fullSystemPrompt,
-            maxOutputTokens = maxOutputTokensMain
+            temperature = temp,
+            topP = topP,
+            maxOutputTokens = tokens
         )
 
         var lastError: Exception? = null

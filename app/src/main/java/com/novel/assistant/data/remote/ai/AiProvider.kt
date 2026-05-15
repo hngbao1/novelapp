@@ -23,7 +23,16 @@ data class PromptSettings(
     val location: String = "",
     val time: String = "",
     val sceneGoal: String = "",
-    val unresolvedTopics: String = ""
+    val unresolvedTopics: String = "",
+    
+    // --- Vibe & Engine Settings ---
+    val presetName: String = "Mặc định",
+    val sceneEnergy: Int = 1,
+    val unpredictabilityLevel: Int = 1,
+    val continuityLevel: Int = 1,
+    val cinematicLevel: Int = 1,
+    val introspectionLevel: Int = 1,
+    val melancholyLevel: Int = 0
 )
 
 data class MemorySuggestion(
