@@ -31,8 +31,18 @@ class AppPreferences @Inject constructor(
         val KEY_INTROSPECTION = intPreferencesKey("introspection_level")
         val KEY_MELANCHOLY = intPreferencesKey("melancholy_level")
         
+        // --- Model ---
+        val KEY_MODEL_NAME = stringPreferencesKey("model_name")
+        
         // --- API Keys ---
         val KEY_CUSTOM_API_KEYS = stringPreferencesKey("custom_api_keys") // JSON array
+        
+        // --- Roleplay ---
+        val KEY_IS_ROLEPLAY_MODE = booleanPreferencesKey("is_roleplay_mode")
+        val KEY_ROLEPLAY_CHARACTER_NAME = stringPreferencesKey("roleplay_character_name")
+        
+        // --- Reader Theme ---
+        val KEY_READER_THEME = stringPreferencesKey("reader_theme")
     }
 
     val fontSize: Flow<Float> = dataStore.data.map { it[KEY_FONT_SIZE] ?: 17f }
@@ -49,8 +59,18 @@ class AppPreferences @Inject constructor(
     val introspectionLevel: Flow<Int> = dataStore.data.map { it[KEY_INTROSPECTION] ?: 1 } // 0: Ít, 1: Vừa, 2: Nhiều
     val melancholyLevel: Flow<Int> = dataStore.data.map { it[KEY_MELANCHOLY] ?: 0 } // 0: Ít, 1: Vừa, 2: Nhiều
     
+    // --- Model Flow ---
+    val modelName: Flow<String> = dataStore.data.map { it[KEY_MODEL_NAME] ?: "" } // "" = dùng default từ BuildConfig
+    
     // --- API Keys Flow ---
     val customApiKeys: Flow<String> = dataStore.data.map { it[KEY_CUSTOM_API_KEYS] ?: "[]" }
+
+    // --- Roleplay Flow ---
+    val isRoleplayMode: Flow<Boolean> = dataStore.data.map { it[KEY_IS_ROLEPLAY_MODE] ?: false }
+    val roleplayCharacterName: Flow<String> = dataStore.data.map { it[KEY_ROLEPLAY_CHARACTER_NAME] ?: "" }
+
+    // --- Reader Flow ---
+    val readerTheme: Flow<String> = dataStore.data.map { it[KEY_READER_THEME] ?: "Light" }
 
     suspend fun setFontSize(size: Float) { dataStore.edit { it[KEY_FONT_SIZE] = size } }
     suspend fun setLineHeight(height: Float) { dataStore.edit { it[KEY_LINE_HEIGHT] = height } }
@@ -65,5 +85,11 @@ class AppPreferences @Inject constructor(
     suspend fun setIntrospection(level: Int) { dataStore.edit { it[KEY_INTROSPECTION] = level } }
     suspend fun setMelancholy(level: Int) { dataStore.edit { it[KEY_MELANCHOLY] = level } }
     
+    suspend fun setRoleplayMode(enabled: Boolean) { dataStore.edit { it[KEY_IS_ROLEPLAY_MODE] = enabled } }
+    suspend fun setRoleplayCharacterName(name: String) { dataStore.edit { it[KEY_ROLEPLAY_CHARACTER_NAME] = name } }
+    
+    suspend fun setModelName(name: String) { dataStore.edit { it[KEY_MODEL_NAME] = name } }
     suspend fun setCustomApiKeys(json: String) { dataStore.edit { it[KEY_CUSTOM_API_KEYS] = json } }
+    
+    suspend fun setReaderTheme(themeName: String) { dataStore.edit { it[KEY_READER_THEME] = themeName } }
 }

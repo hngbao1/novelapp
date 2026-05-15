@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,6 +42,19 @@ fun WritingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+    var showMenu by remember { mutableStateOf(false) }
+
+    // Resolve Reader Theme
+    val currentTheme = remember(uiState.readerTheme) {
+        try { ReaderTheme.valueOf(uiState.readerTheme) } catch (e: Exception) { ReaderTheme.WarmDark }
+    }
+
+    // Auto-scroll when generating text
+    LaunchedEffect(uiState.generatedContent, uiState.isGenerating) {
+        if (uiState.isGenerating || uiState.generatedContent.isNotEmpty()) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     if (uiState.showSaveDialog) {
         SaveSceneDialog(
@@ -92,14 +106,15 @@ fun WritingScreen(
     }
 
     Scaffold(
-        containerColor = DarkBackground,
+        containerColor = currentTheme.background,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text(uiState.novel?.title ?: "", style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                        Text(uiState.novel?.title ?: "", style = MaterialTheme.typography.titleMedium, maxLines = 1, color = currentTheme.textPrimary)
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("Đang dùng: ${uiState.providerName}", style = MaterialTheme.typography.labelSmall, color = TextHint)
+                            Text("Đang dùng: ${uiState.providerName}", style = MaterialTheme.typography.labelSmall, color = currentTheme.textSecondary)
                             if (uiState.isRoleplayMode) {
                                 Text("• Nhập vai: ${uiState.roleplayCharacterName}", style = MaterialTheme.typography.labelSmall, color = PinkSoft)
                             }
@@ -107,39 +122,34 @@ fun WritingScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Quay lại", tint = TextSecondary) }
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Quay lại", tint = currentTheme.textSecondary) }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.showChapterDrawer(true) }) {
-                        Icon(Icons.Default.List, "Chương và phân cảnh", tint = TextSecondary)
+                        Icon(Icons.Default.List, "Chương", tint = currentTheme.textSecondary)
                     }
-                    IconButton(onClick = viewModel::toggleRoleplayMode) {
-                        Icon(Icons.Default.TheaterComedy, "Nhập vai", tint = if (uiState.isRoleplayMode) PinkSoft else TextHint)
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.MoreVert, "Menu", tint = currentTheme.textSecondary)
                     }
-                    IconButton(onClick = { viewModel.showStatusSheet(true) }) {
-                        Icon(Icons.Default.Insights, "Trạng thái truyện", tint = TextSecondary)
-                    }
-                    IconButton(onClick = { uiState.novel?.id?.let { onTimeline(it) } }) {
-                        Icon(Icons.Default.Timeline, "Dòng thời gian", tint = TextSecondary)
-                    }
-                    IconButton(onClick = { uiState.novel?.id?.let { onCharacters(it) } }) {
-                        Icon(Icons.Default.People, "Nhân vật", tint = TextSecondary)
-                    }
-                    IconButton(onClick = { uiState.novel?.id?.let { onReader(it) } }) {
-                        Icon(Icons.Default.MenuBook, "Đọc truyện", tint = TextSecondary)
-                    }
-                    IconButton(onClick = onSettings) {
-                        Icon(Icons.Default.Settings, "Cài đặt", tint = TextSecondary)
+                    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }, modifier = Modifier.background(DarkSurfaceVariant)) {
+                        DropdownMenuItem(text = { Text("Nhập vai", color = TextPrimary) }, onClick = { viewModel.toggleRoleplayMode(); showMenu = false }, leadingIcon = { Icon(Icons.Default.TheaterComedy, null, tint = if (uiState.isRoleplayMode) PinkSoft else TextHint) })
+                        DropdownMenuItem(text = { Text("Đọc truyện", color = TextPrimary) }, onClick = { uiState.novel?.id?.let { onReader(it) }; showMenu = false }, leadingIcon = { Icon(Icons.Default.MenuBook, null, tint = TextHint) })
+                        DropdownMenuItem(text = { Text("Trạng thái", color = TextPrimary) }, onClick = { viewModel.showStatusSheet(true); showMenu = false }, leadingIcon = { Icon(Icons.Default.Insights, null, tint = TextHint) })
+                        DropdownMenuItem(text = { Text("Dòng thời gian", color = TextPrimary) }, onClick = { uiState.novel?.id?.let { onTimeline(it) }; showMenu = false }, leadingIcon = { Icon(Icons.Default.Timeline, null, tint = TextHint) })
+                        DropdownMenuItem(text = { Text("Nhân vật", color = TextPrimary) }, onClick = { uiState.novel?.id?.let { onCharacters(it) }; showMenu = false }, leadingIcon = { Icon(Icons.Default.People, null, tint = TextHint) })
+                        DropdownMenuItem(text = { Text("Cài đặt AI", color = TextPrimary) }, onClick = { onSettings(); showMenu = false }, leadingIcon = { Icon(Icons.Default.Settings, null, tint = TextHint) })
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface, titleContentColor = TextPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent, titleContentColor = currentTheme.textPrimary)
             )
         },
         bottomBar = {
             WritingInputBar(
+                modifier = Modifier.imePadding(),
                 userPrompt = uiState.userPrompt, isGenerating = uiState.isGenerating, isRoleplayMode = uiState.isRoleplayMode,
                 onPromptChange = viewModel::updateUserPrompt, onSend = viewModel::generateScene,
-                onStop = viewModel::stopGeneration, onPromptBuilder = { viewModel.showPromptBuilder(true) }
+                onStop = viewModel::stopGeneration, onPromptBuilder = { viewModel.showPromptBuilder(true) },
+                currentTheme = currentTheme
             )
         }
     ) { padding ->
@@ -204,21 +214,35 @@ fun WritingScreen(
 }
 
 @Composable
-private fun WritingInputBar(userPrompt: String, isGenerating: Boolean, isRoleplayMode: Boolean,
-    onPromptChange: (String) -> Unit, onSend: () -> Unit, onStop: () -> Unit, onPromptBuilder: () -> Unit) {
-    Surface(color = DarkSurface, shadowElevation = 8.dp) {
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp).navigationBarsPadding(), verticalAlignment = Alignment.Bottom) {
+private fun WritingInputBar(
+    userPrompt: String, isGenerating: Boolean, isRoleplayMode: Boolean,
+    onPromptChange: (String) -> Unit, onSend: () -> Unit, onStop: () -> Unit, onPromptBuilder: () -> Unit,
+    currentTheme: ReaderTheme,
+    modifier: Modifier = Modifier
+) {
+    Surface(color = currentTheme.background, modifier = modifier) {
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp).navigationBarsPadding(), verticalAlignment = Alignment.Bottom) {
             IconButton(onClick = onPromptBuilder, modifier = Modifier.size(40.dp)) {
-                Icon(Icons.Default.Palette, "Tuỳ chỉnh", tint = PurplePrimary)
+                Icon(Icons.Default.Palette, "Tuỳ chỉnh", tint = currentTheme.textSecondary)
             }
-            OutlinedTextField(value = userPrompt, onValueChange = onPromptChange,
-                placeholder = { Text(if (isRoleplayMode) "Nhập hành động/suy nghĩ…" else "Mô tả cảnh bạn tưởng tượng…", style = MaterialTheme.typography.bodyMedium, color = TextHint) },
-                modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PurplePrimary.copy(alpha = 0.5f), unfocusedBorderColor = DarkDivider, cursorColor = PurplePrimary, focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, focusedContainerColor = DarkBackground, unfocusedContainerColor = DarkBackground),
-                shape = RoundedCornerShape(20.dp), maxLines = 5, textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary))
+            OutlinedTextField(
+                value = userPrompt, onValueChange = onPromptChange,
+                placeholder = { Text(if (isRoleplayMode) "Nhập hành động/suy nghĩ…" else "Mô tả cảnh bạn tưởng tượng…", style = MaterialTheme.typography.bodyMedium, color = currentTheme.textSecondary.copy(alpha=0.7f)) },
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    cursorColor = PurplePrimary,
+                    focusedTextColor = currentTheme.textPrimary,
+                    unfocusedTextColor = currentTheme.textPrimary,
+                    focusedContainerColor = currentTheme.surface,
+                    unfocusedContainerColor = currentTheme.surface
+                ),
+                shape = RoundedCornerShape(24.dp), maxLines = 5, textStyle = MaterialTheme.typography.bodyMedium.copy(color = currentTheme.textPrimary)
+            )
             IconButton(onClick = { if (isGenerating) onStop() else onSend() },
-                modifier = Modifier.size(40.dp).clip(CircleShape).background(if (isGenerating) RedSoft else PurplePrimary)) {
-                Icon(if (isGenerating) Icons.Default.Stop else Icons.AutoMirrored.Filled.Send, if (isGenerating) "Dừng" else "Viết", tint = TextOnPrimary, modifier = Modifier.size(20.dp))
+                modifier = Modifier.size(40.dp).clip(CircleShape).background(if (isGenerating) RedSoft else currentTheme.surface)) {
+                Icon(if (isGenerating) Icons.Default.Stop else Icons.AutoMirrored.Filled.Send, if (isGenerating) "Dừng" else "Viết", tint = if (isGenerating) TextOnPrimary else PurplePrimary, modifier = Modifier.size(20.dp))
             }
         }
     }
@@ -455,7 +479,7 @@ private fun VersionHistorySheet(
                         Surface(color = DarkCard, shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                    val time = java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.getDefault()).format(java.util.Date(version.createdAt))
+                                    val time = java.text.SimpleDateFormat("dd/MM HH:mm", androidx.compose.ui.text.intl.Locale.current.platformLocale).format(java.util.Date(version.createdAt))
                                     Text("Phiên bản ${version.versionNumber}", style = MaterialTheme.typography.titleSmall, color = PurplePrimary)
                                     Text(time, style = MaterialTheme.typography.labelSmall, color = TextHint)
                                 }

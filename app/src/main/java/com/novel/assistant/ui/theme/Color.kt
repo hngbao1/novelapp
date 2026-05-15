@@ -2,41 +2,41 @@ package com.novel.assistant.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// === Nền tối cinematic ===
-val DarkBackground = Color(0xFF0A0A10)
-val DarkSurface = Color(0xFF13131D)
-val DarkSurfaceVariant = Color(0xFF1C1C2B)
-val DarkCard = Color(0xFF171722)
-val DarkCardElevated = Color(0xFF1F1F30)
-val DarkDivider = Color(0xFF2A2A3A)
+// === Nền tối Warm Dark (Café Đêm) ===
+val DarkBackground = Color(0xFF1C1A19) // Nền đen nâu dịu
+val DarkSurface = Color(0xFF252321)    // Nổi hơn một chút
+val DarkSurfaceVariant = Color(0xFF2C2A28)
+val DarkCard = Color(0xFF22201F)       // Card chìm, hoà vào nền
+val DarkCardElevated = Color(0xFF2A2826)
+val DarkDivider = Color(0xFF383532)    // Divider rất dịu
 
-// === Accent colors ===
-val PurplePrimary = Color(0xFF8B7EC8)
-val PurpleLight = Color(0xFFA99ADE)
-val PurpleDark = Color(0xFF6B5FA8)
-val BlueSky = Color(0xFF5B8FB9)
-val PinkSoft = Color(0xFFC9A0DC)
-val GoldWarm = Color(0xFFD4A574)
-val GreenSoft = Color(0xFF7EC89A)
-val RedSoft = Color(0xFFCF6679)
+// === Accent colors (Muted, Warm, Cozy) ===
+val PurplePrimary = Color(0xFFC8AD7E)  // Muted Gold thay vì Tím Neon
+val PurpleLight = Color(0xFFE2CCA1)
+val PurpleDark = Color(0xFF9E865D)
+val BlueSky = Color(0xFF7E97A6)        // Slate blue
+val PinkSoft = Color(0xFFD4A3A3)       // Dusty rose
+val GoldWarm = Color(0xFFC8AD7E)
+val GreenSoft = Color(0xFF8BA888)      // Sage green
+val RedSoft = Color(0xFFC97A7E)
 
-// === Text colors ===
-val TextPrimary = Color(0xFFE8E4F0)
-val TextSecondary = Color(0xFF9590A8)
-val TextHint = Color(0xFF5C586A)
-val TextOnPrimary = Color(0xFF0A0A10)
+// === Text colors (Muted for readability) ===
+val TextPrimary = Color(0xFFE4DFD9)    // Trắng ngà (Off-white), tránh chói
+val TextSecondary = Color(0xFFA8A39D)
+val TextHint = Color(0xFF75706A)
+val TextOnPrimary = Color(0xFF1C1A19)
 
-// === Vibe tag colors ===
-val VibeSad = Color(0xFF6E8CB0)
-val VibeHealing = Color(0xFF7EC89A)
-val VibeLonely = Color(0xFF8B7EC8)
-val VibeTense = Color(0xFFCF6679)
-val VibeAwkward = Color(0xFFD4A574)
-val VibeSlowBurn = Color(0xFFC9A0DC)
-val VibeMelancholy = Color(0xFF5B8FB9)
-val VibeHappy = Color(0xFFE8C87E)
-val VibeRomantic = Color(0xFFE89ABF)
+// === Vibe tag colors (Pastel Cinematic) ===
+val VibeSad = Color(0xFF7E97A6)
+val VibeHealing = Color(0xFF8BA888)
+val VibeLonely = Color(0xFFA298AD)
+val VibeTense = Color(0xFFC97A7E)
+val VibeAwkward = Color(0xFFC8AD7E)
+val VibeSlowBurn = Color(0xFFD4A3A3)
+val VibeMelancholy = Color(0xFF7E97A6)
+val VibeHappy = Color(0xFFE2CCA1)
+val VibeRomantic = Color(0xFFD4A3A3)
 
 // === Shimmer ===
-val ShimmerBase = Color(0xFF1C1C2B)
-val ShimmerHighlight = Color(0xFF2A2A3A)
+val ShimmerBase = Color(0xFF2C2A28)
+val ShimmerHighlight = Color(0xFF383532)

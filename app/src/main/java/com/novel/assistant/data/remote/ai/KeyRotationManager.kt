@@ -202,7 +202,7 @@ class KeyRotationManager @Inject constructor() {
      */
     suspend fun validateKey(key: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$key"
+            val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$key"
             val payload = """
                 {
                     "contents": [{"parts":[{"text":"ping"}]}],

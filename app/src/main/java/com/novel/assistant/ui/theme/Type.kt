@@ -12,7 +12,6 @@ val NovelFontFamily = FontFamily.Serif
 val UiFontFamily = FontFamily.Default
 
 val NovelTypography = Typography(
-    // Large display - for splash/empty states
     displayLarge = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Light,
@@ -20,76 +19,71 @@ val NovelTypography = Typography(
         lineHeight = 40.sp,
         color = TextPrimary
     ),
-    // Novel title
     displayMedium = TextStyle(
         fontFamily = UiFontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Normal, // Lighter for calm vibe
         fontSize = 24.sp,
         lineHeight = 32.sp,
         color = TextPrimary
     ),
-    // Chapter title
     headlineLarge = TextStyle(
         fontFamily = UiFontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         fontSize = 22.sp,
         lineHeight = 28.sp,
         color = TextPrimary
     ),
-    // Section headers
     headlineMedium = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
-        lineHeight = 24.sp,
+        lineHeight = 26.sp,
         color = TextPrimary
     ),
-    // Card titles
     titleLarge = TextStyle(
         fontFamily = UiFontFamily,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         fontSize = 18.sp,
-        lineHeight = 24.sp,
+        lineHeight = 26.sp,
         color = TextPrimary
     ),
     titleMedium = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        lineHeight = 22.sp,
+        lineHeight = 24.sp,
         color = TextPrimary
     ),
     titleSmall = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 14.sp,
-        lineHeight = 20.sp,
+        lineHeight = 22.sp,
         color = TextPrimary
     ),
-    // Novel reading body - IMPORTANT: serif + generous line height
+    // Novel reading body - Muted contrast, generous line height for immersion
     bodyLarge = TextStyle(
         fontFamily = NovelFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 17.sp,
-        lineHeight = 30.sp,  // 1.76x for comfortable reading
+        lineHeight = 32.sp,  // ~1.88x for optimal reading breathing room
+        letterSpacing = 0.5.sp, // Tweak letter spacing slightly
         color = TextPrimary
     ),
-    // UI body text
     bodyMedium = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-        lineHeight = 20.sp,
+        lineHeight = 22.sp,
         color = TextSecondary
     ),
     bodySmall = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
-        lineHeight = 16.sp,
+        lineHeight = 18.sp,
         color = TextSecondary
     ),
-    // Button text
     labelLarge = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Medium,
@@ -97,7 +91,6 @@ val NovelTypography = Typography(
         lineHeight = 20.sp,
         color = TextPrimary
     ),
-    // Chip/tag text
     labelMedium = TextStyle(
         fontFamily = UiFontFamily,
         fontWeight = FontWeight.Medium,

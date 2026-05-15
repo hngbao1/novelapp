@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.novel.assistant.ui.components.*
 import com.novel.assistant.ui.theme.*
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,18 +111,16 @@ private fun NovelCard(
 ) {
     val novel = novelWithScene.novel
 
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkCard),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        color = Color.Transparent
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(vertical = 12.dp, horizontal = 4.dp)
         ) {
             // Title
             Text(
@@ -132,7 +131,7 @@ private fun NovelCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Description
             if (novel.description.isNotBlank()) {
@@ -143,7 +142,7 @@ private fun NovelCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
             // Mood + Last scene

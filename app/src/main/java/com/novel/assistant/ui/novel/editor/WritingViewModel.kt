@@ -43,7 +43,8 @@ data class WritingUiState(
     val showVersionHistory: Boolean = false,
     val sceneVersions: List<SceneVersionEntity> = emptyList(),
     val isAnalyzingScene: Boolean = false,
-    val providerName: String = "Gemini"
+    val providerName: String = "Gemini",
+    val readerTheme: String = "WarmDark"
 )
 
 @HiltViewModel
@@ -96,6 +97,16 @@ class WritingViewModel @Inject constructor(
         viewModelScope.launch {
             sceneDao.getScenesByNovel(novelId).collect { scenes ->
                 _uiState.value = _uiState.value.copy(scenes = scenes)
+            }
+        }
+        viewModelScope.launch {
+            appPreferences.readerTheme.collect { theme ->
+                _uiState.value = _uiState.value.copy(readerTheme = theme)
+            }
+        }
+        viewModelScope.launch {
+            appPreferences.isRoleplayMode.collect { mode ->
+                _uiState.value = _uiState.value.copy(isRoleplayMode = mode)
             }
         }
         viewModelScope.launch {
